@@ -1,4 +1,4 @@
-#:  * `style` [`--fix`] [`--display-cop-names`] [`--only-cops=`<cops>|`--except-cops=`<cops>] [<files>|<taps>|<formulae>]:
+#:  * `style` [`--fix`] [`--display-cop-names`] [`--only-cops=`<cops>|`--except-cops=`<cops>] [`--no-parallel`] [<files>|<taps>|<formulae>]:
 #:    Check formulae or files for conformance to Homebrew style guidelines.
 #:
 #:    Lists of <files>, <taps> and <formulae> may not be combined. If none are
@@ -12,6 +12,9 @@
 #:    violation in the output.
 #:
 #:    If `--rspec` is passed, install and use the RuboCop RSpec gem.
+#:
+#:    If `--no-parallel` is passed, do not use parallel RuboCop execution. This can
+#:    make large outputs more manageable in the terminal.
 #:
 #:    Passing `--only-cops=`<cops> will check for violations of only the listed
 #:    RuboCop <cops>, while `--except-cops=`<cops> will skip checking the listed
@@ -81,7 +84,7 @@ module Homebrew
     if fix
       args << "--auto-correct"
     else
-      args << "--parallel"
+      args << "--parallel" unless ARGV.include? "--no-parallel"
     end
 
     if ARGV.include?("--rspec")
