@@ -665,6 +665,10 @@ class SubversionDownloadStrategy < VCSDownloadStrategy
     @url = @url.sub("svn+http://", "")
   end
 
+  def cache_filename
+    safe_download_name("#{name}--#{cache_tag}")
+  end
+
   def fetch
     clear_cache unless @url.chomp("/") == repo_url || quiet_system("svn", "switch", @url, cached_location)
     super
@@ -672,7 +676,7 @@ class SubversionDownloadStrategy < VCSDownloadStrategy
 
   def stage
     super
-    quiet_safe_system "svn", "export", "--force", cached_location, Dir.pwd
+    quiet_safe_system "svn", "export", "--force", cached_location, Dir.pwd + "@"
   end
 
   def source_modified_time
@@ -685,6 +689,11 @@ class SubversionDownloadStrategy < VCSDownloadStrategy
   end
 
   private
+
+  def safe_download_name(str)
+    # "@" is a special character for Subversion. Keep it out of the cache dir name.
+    str.gsub("@", "-AT-")
+  end
 
   def repo_url
     Utils.popen_read("svn", "info", cached_location.to_s).strip[/^URL: (.+)$/, 1]
